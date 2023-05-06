@@ -1,0 +1,6 @@
+/target
+/Hanoi.Solver/*
+/.idea
+/.vscode
+flamegraph.svg
+perf.data
