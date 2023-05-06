@@ -54,6 +54,7 @@ impl Strips {
                     .iter()
                     .for_each(|e| println!("{:?}", e.to_string()));
                 println!("{}ms", end.duration_since(start).as_millis());
+                println!("{}", estado_actual.solucion.len());
                 break;
             }
 
@@ -115,7 +116,7 @@ impl Strips {
 
         for pos in posibilidades {
             let mut copia = estado_actual.copy();
-            copia.stack_objetivos.push_back(Rc::new(Stackeable::Accion(pos)));
+            copia.stack_objetivos.push_back(Stackeable::Accion(pos).into());
             siguientes_estados.push_back(copia);
         }
 

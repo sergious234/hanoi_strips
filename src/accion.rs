@@ -132,7 +132,7 @@ impl Apilar {
 
         copia
             .stack_objetivos
-            .push_back(Rc::new(Stackeable::Conjuncion(conj)));
+            .push_back(Stackeable::Conjuncion(conj).into());
 
         copia
     }
@@ -163,18 +163,17 @@ impl Apilar {
                 });
 
                 //let mut despejados: Vec<&i8> = Vec::new();
-                let despejados: Vec<&i8> = estado_actual
+                estado_actual
                     .recursos
                     .iter()
-                    .filter_map(|item| {
-                        if let Meta::Despejado(x2) = item.deref() {
+                    .rev()
+                    .for_each(|item| {
+                        if let Meta::Despejado(x2) = item {
                             if *x2 < 0 || *x2 > coso_que_mover {
-                                return Some(x2);
+                                posibilidades.push(Apilar::new(coso_que_mover, *x, x2.clone()));
                             }
                         }
-                        None
-                    })
-                    .collect();
+                    });
                 // estado_actual.recursos.iter().for_each(|item| {
                 //     if let Meta::Despejado(x2) = item {
                 //         if *x2 < 0 || *x2 > coso_que_mover {
@@ -183,9 +182,11 @@ impl Apilar {
                 //     }
                 // });
 
-                for despejado in despejados {
-                    posibilidades.push(Apilar::new(coso_que_mover, *x, *despejado))
+                /*
+                for despejado in despejados.into_iter().rev() {
+                    posibilidades.push(Apilar::new(coso_que_mover, *x, *despejado).into())
                 }
+                */
             }
 
             Meta::Menor(_, _) => {}

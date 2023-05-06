@@ -14,7 +14,7 @@ pub mod stripsstate;
 
 fn main() {
     let mut estado_actual = Vec::new();
-    const DISCOS: i8 = 9;
+    const DISCOS: i8 = 8;
 
     estado_actual.push(Meta::Despejado(1));
     estado_actual.push(Meta::Despejado(-2));

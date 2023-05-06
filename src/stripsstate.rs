@@ -12,16 +12,16 @@ use crate::{
 use std::ops::Deref;
 
 
-type RecType = BTreeSet<Rc<Meta>>;
+type RecType = BTreeSet<Meta>;
 
 
 #[derive(Clone)]
 pub struct StripsState {
-    pub stack_objetivos: VecDeque<Rc<Stackeable>>,
-    pub solucion: Vec<Apilar>,
+    pub stack_objetivos: VecDeque<Stackeable>,
     pub recursos: RecType, //BTreeSet<Rc<Meta>>,
-    pub pre_req_buffer: Option<[Rc<Stackeable>; 4]>,
-    pub buffer_len: usize,
+    pub solucion: Vec<Apilar>, 
+    //pub pre_req_buffer: Option<[Rc<Stackeable>; 4]>,
+    //pub buffer_len: usize,
 }
 
 impl PartialEq for StripsState {
@@ -54,19 +54,23 @@ impl Eq for StripsState {}
 
 impl StripsState {
     pub fn new(ea: Vec<Meta>, objetivos: Vec<Stackeable>) -> StripsState {
+        
+        /*
         let n_obj = objetivos.into_iter()
-            .map(|o| Rc::new(o))
+            .map(|o| o)
             .collect();
 
+        
         let n_recursos: Vec<Rc<Meta>> = ea.into_iter()
             .map(|r| Rc::new(r))
             .collect();
+        */
         StripsState {
-            stack_objetivos: n_obj,
-            solucion: Vec::new(),
-            recursos: RecType::from_iter(n_recursos),
-            pre_req_buffer: None,
-            buffer_len: 0
+            stack_objetivos: objetivos.into(),
+            solucion: Vec::with_capacity(325),
+            recursos: RecType::from_iter(ea),
+            //pre_req_buffer: None,
+//            buffer_len: 0
         }
     }
 
@@ -97,13 +101,15 @@ impl StripsState {
     pub fn add_metas(&mut self, metas: Vec<&Meta>) {
         metas.into_iter().for_each(|m| {
             self.stack_objetivos
-                .push_back(Rc::new(Stackeable::Objetivo(*m)))
+                .push_back(Stackeable::Objetivo(*m).into())
         });
     }
 
+    /*
     pub fn buffer_empty(&self) -> bool {
         self.buffer_len == 0
     }
+    */
 
     pub fn copy(&self) -> Self {
         let o_stack = self.stack_objetivos.clone(); //VecDeque::with_capacity(self.stack_objetivos.len());
@@ -114,8 +120,8 @@ impl StripsState {
             solucion: o_solucion,
             recursos: o_rec,
             stack_objetivos: o_stack,
-            pre_req_buffer: None,
-            buffer_len: 0,
+            //pre_req_buffer: None,
+            //buffer_len: 0,
         }
     }
 
