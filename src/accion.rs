@@ -5,16 +5,16 @@ use std::rc::Rc;
 
 #[derive(Clone, Hash, PartialEq, Eq, Copy, PartialOrd, Ord)]
 pub enum Meta {
-    Sobre(i32, i32),
-    Menor(i32, i32),
-    Despejado(i32),
+    Sobre(i8, i8),
+    Menor(i8, i8),
+    Despejado(i8),
 }
 
 #[derive(Clone, Ord, PartialOrd)]
 pub struct Apilar {
-    x: i32,
-    y: i32,
-    z: i32,
+    x: i8,
+    y: i8,
+    z: i8,
     pub lista_adicion: [Rc<Meta>; 2], //Vec<Rc<Meta>>,
     pub lista_supresion: [Rc<Meta>; 2], // Vec<Rc<Meta>>,
     pub precondiciones: [Rc<Meta>; 4], // Vec<Rc<Meta>>,
@@ -30,9 +30,9 @@ impl Eq for Apilar {}
 
 impl Hash for Apilar {
     fn hash<H: Hasher>(&self, state: &mut H) {
-        state.write_i32(self.x);
-        state.write_i32(self.y);
-        state.write_i32(self.z);
+        state.write_i8(self.x);
+        state.write_i8(self.y);
+        state.write_i8(self.z);
         state.finish();
     }
 }
@@ -42,7 +42,7 @@ impl Apilar {
         format!("Apilar {}|{:2}|{:2}", self.x, self.y, self.z)
     }
 
-    pub fn new(x: i32, y: i32, z: i32) -> Self {
+    pub fn new(x: i8, y: i8, z: i8) -> Self {
         let lista_adicion: [Rc<Meta>; 2] = [
             Meta::Despejado(y).into(),
             Meta::Sobre(x,z).into()
@@ -100,10 +100,17 @@ impl Apilar {
                 .push_back(Stackeable::Objetivo(pre.deref().clone()).into())
         });
 
-        let mut conj = Vec::with_capacity(2);
+        let conj = [
+            self.precondiciones[2].deref().clone(),
+            self.precondiciones[3].deref().clone()
+
+        ]; //Vec::with_capacity(2);
+
+        /*
         for i in 2..4 {
             conj.push(self.precondiciones[i].deref().clone());
         }
+        */
         // let conj = self.precondiciones.iter()
         // .skip(2)
         // .map(|f| f.clone())
@@ -151,8 +158,8 @@ impl Apilar {
                     }
                 });
 
-                //let mut despejados: Vec<&i32> = Vec::new();
-                let despejados: Vec<&i32> = estado_actual
+                //let mut despejados: Vec<&i8> = Vec::new();
+                let despejados: Vec<&i8> = estado_actual
                     .recursos
                     .iter()
                     .filter_map(|item| {

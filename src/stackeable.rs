@@ -4,7 +4,7 @@ use crate::accion::{Apilar, Meta};
 pub enum Stackeable {
     Accion(Apilar),
     Objetivo(Meta),
-    Conjuncion(Vec<Meta>),
+    Conjuncion([Meta; 2]),
 }
 
 impl Stackeable {

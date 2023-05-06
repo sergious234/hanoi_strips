@@ -70,14 +70,17 @@ impl StripsState {
         }
     }
 
+    #[inline]
     pub fn cumple_meta(&self, meta: &Meta) -> bool {
         self.recursos.contains(meta)
     }
 
+    #[inline]
     pub fn cumple_conjuncion(&self, conjuncion: &[Meta]) -> bool {
         conjuncion.iter().all(|meta| self.recursos.contains(meta))
     }
 
+    #[inline]
     pub fn cumple_meta_bucle(&self, meta: &Meta) -> bool {
         let item = Stackeable::Objetivo(*meta);
 
@@ -90,6 +93,7 @@ impl StripsState {
         return false;
     }
 
+    #[inline]
     pub fn add_metas(&mut self, metas: Vec<&Meta>) {
         metas.into_iter().for_each(|m| {
             self.stack_objetivos
