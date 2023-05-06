@@ -32,7 +32,7 @@ impl Strips {
     pub fn new(estado_inicial: StripsState, acciones: Apilar, meta: Vec<Meta>) -> Strips {
         let mut s = Strips {
             estados: VecDeque::new(),
-            visitados: HashSet::with_capacity(202369),
+            visitados: HashSet::with_capacity(826548),
             acciones_disponibles: acciones,
             objetivo_meta: meta,
         };
@@ -65,7 +65,7 @@ impl Strips {
             self.prueba_estado(&estado_actual);
             self.visitados.insert(estado_actual);
         }
-        println!("Terminamos ! Its: {} ", its);
+        println!("Terminamos ! Its: {} ", self.visitados.len());
     }
 
     pub fn prueba_estado(&mut self, estado_actual: &StripsState) {
