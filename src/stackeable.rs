@@ -1,6 +1,6 @@
 use crate::accion::{Apilar, Meta};
 
-#[derive(Clone, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Stackeable {
     Accion(Apilar),
     Objetivo(Meta),

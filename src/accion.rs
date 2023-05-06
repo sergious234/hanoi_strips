@@ -3,6 +3,7 @@ use std::hash::{Hash, Hasher};
 use std::ops::Deref;
 use std::rc::Rc;
 
+
 #[derive(Clone, Hash, PartialEq, Eq, Copy, PartialOrd, Ord)]
 pub enum Meta {
     Sobre(i8, i8),
@@ -10,14 +11,17 @@ pub enum Meta {
     Despejado(i8),
 }
 
-#[derive(Clone, Ord, PartialOrd)]
+
+type MetaS = Meta;
+
+#[derive(Clone, Ord, Copy, PartialOrd)]
 pub struct Apilar {
     x: i8,
     y: i8,
     z: i8,
-    pub lista_adicion: [Rc<Meta>; 2], //Vec<Rc<Meta>>,
-    pub lista_supresion: [Rc<Meta>; 2], // Vec<Rc<Meta>>,
-    pub precondiciones: [Rc<Meta>; 4], // Vec<Rc<Meta>>,
+    pub lista_adicion: [MetaS; 2], //Vec<Rc<Meta>>,
+    pub lista_supresion: [MetaS; 2], // Vec<Rc<Meta>>,
+    pub precondiciones: [MetaS; 4], // Vec<Rc<Meta>>,
 }
 
 impl PartialEq for Apilar {
@@ -43,19 +47,19 @@ impl Apilar {
     }
 
     pub fn new(x: i8, y: i8, z: i8) -> Self {
-        let lista_adicion: [Rc<Meta>; 2] = [
+        let lista_adicion: [MetaS; 2] = [
             Meta::Despejado(y).into(),
             Meta::Sobre(x,z).into()
         ];
 
-        let precondiciones: [Rc<Meta>; 4] = [
+        let precondiciones: [MetaS; 4] = [
             Meta::Menor(x, z).into(),
             Meta::Sobre(x, y).into(),
             Meta::Despejado(x).into(),
             Meta::Despejado(z).into() 
         ];
 
-        let lista_supresion: [Rc<Meta>; 2] = [
+        let lista_supresion: [MetaS; 2] = [
             Meta::Despejado(z).into(),
             Meta::Sobre(x,y).into()
         ];
@@ -84,7 +88,7 @@ impl Apilar {
             estado_copia.recursos.remove(item);
         });
         self.lista_adicion.iter().for_each(|item| {
-            estado_copia.recursos.insert(item.clone());
+            estado_copia.recursos.insert(item.clone().into());
         });
         estado_copia.solucion.push(self.clone());
         estado_copia
@@ -101,8 +105,8 @@ impl Apilar {
         });
 
         let conj = [
-            self.precondiciones[2].deref().clone(),
-            self.precondiciones[3].deref().clone()
+            self.precondiciones[2].clone(),
+            self.precondiciones[3].clone()
 
         ]; //Vec::with_capacity(2);
 
