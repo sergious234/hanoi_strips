@@ -1,6 +1,5 @@
 use itertools::Itertools;
 
-
 use std::{
     collections::{HashSet, VecDeque},
     time::Instant,
@@ -21,18 +20,7 @@ enum EstadoMeta {
 }
 
 const VISITADOS_SIZE: [usize; 12] = [
-    3,
-    17,
-    37,
-    263,
-    757,
-    2589,
-    7762,
-    23779,
-    71105,
-    213629,
-    639176,
-    1915467
+    3, 17, 37, 263, 757, 2589, 7762, 23779, 71105, 213629, 639176, 1915467,
 ];
 
 #[allow(dead_code)]
@@ -44,8 +32,16 @@ pub struct Strips {
 }
 
 impl Strips {
-    pub fn new(estado_inicial: StripsState, acciones: Apilar, meta: Vec<Meta>, n_discos: i8) -> Strips {
-        let visitados_size: usize = VISITADOS_SIZE.get((n_discos-1) as usize).cloned().unwrap_or(VISITADOS_SIZE.last().unwrap()*2);
+    pub fn new(
+        estado_inicial: StripsState,
+        acciones: Apilar,
+        meta: Vec<Meta>,
+        n_discos: i8,
+    ) -> Strips {
+        let visitados_size: usize = VISITADOS_SIZE
+            .get((n_discos - 1) as usize)
+            .cloned()
+            .unwrap_or(VISITADOS_SIZE.last().unwrap() * 2);
         let mut s = Strips {
             estados: VecDeque::new(),
             visitados: HashSet::with_capacity(visitados_size),
@@ -133,11 +129,14 @@ impl Strips {
             .genera_posibilidades(meta_actual, estado_actual);
 
         for pos in posibilidades {
+            /*
             if !estado_actual.solucion.is_empty()
                 && pos.x == estado_actual.solucion.last().unwrap().x
             {
                 continue;
             }
+            */
+
             let mut copia = estado_actual.copy();
             copia
                 .stack_objetivos
@@ -169,14 +168,11 @@ impl Strips {
          *      [A,B]
          *      [B,A]
          *
-         *  Esto aumenta el rendimiento unos 100ms en mi maquina 
+         *  Esto aumenta el rendimiento unos 100ms en mi maquina
          *  para DISCOS=9
          *
          * */
-        let permutaciones: [[Meta;2];2] = [
-            [conj[0], conj[1]],
-            [conj[1], conj[0]]
-        ];
+        let permutaciones: [[Meta; 2]; 2] = [[conj[0], conj[1]], [conj[1], conj[0]]];
 
         permutaciones.into_iter().for_each(|metas| {
             let mut copia = estado_actual.clone();

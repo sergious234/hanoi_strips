@@ -3,8 +3,6 @@ use std::{
     hash::{Hash, Hasher},
 };
 
-
-
 use crate::{
     accion::{Apilar, Meta},
     stackeable::Stackeable,
@@ -16,7 +14,7 @@ type RecType = BTreeSet<Meta>;
 #[derive(Clone)]
 pub struct StripsState {
     pub stack_objetivos: VecDeque<Stackeable>,
-    pub recursos: RecType, 
+    pub recursos: RecType,
     pub solucion: Vec<Apilar>,
     //pub pre_req_buffer: Option<[Rc<Stackeable>; 4]>,
     //pub buffer_len: usize,
@@ -110,9 +108,9 @@ impl StripsState {
 
     #[inline]
     pub fn copy(&self) -> Self {
-        let o_stack = self.stack_objetivos.clone(); 
+        let o_stack = self.stack_objetivos.clone();
         let o_rec = self.recursos.clone();
-        let o_solucion = self.solucion.clone(); 
+        let o_solucion = self.solucion.clone();
 
         StripsState {
             solucion: o_solucion,
