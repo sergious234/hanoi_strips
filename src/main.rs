@@ -1,3 +1,5 @@
+use std::{env::{Args, self}, process::CommandArgs};
+
 use strips::Strips;
 use stripsstate::StripsState;
 
@@ -12,9 +14,24 @@ pub mod strips;
 pub mod stripsstate;
 
 fn main() {
-    for i in 1..=11 {
-        hanoi(i)
+
+    let args: Vec<String> = env::args().collect(); 
+
+    if args.len() == 1 {
+        panic!("Necesitas al menos 1 argumento")
+    } if args.len() == 2 {
+        let start: i8 = args.get(1).unwrap().parse().expect("Eso no es un numero!");
+        hanoi(start);
+    } else {
+        let start: i8 = args.get(1).unwrap().parse().expect("Eso no es un numero!");
+        let end: i8 = args.get(2).unwrap().parse().expect("Eso no es un numero!");
+        
+        for i in start..end {
+            hanoi(i);
+        }
+
     }
+
 }
 
 fn hanoi(DISCOS: i8) {
