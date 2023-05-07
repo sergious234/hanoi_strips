@@ -14,7 +14,7 @@ pub mod stripsstate;
 
 
 fn main() {
-    for i in 10..11 {
+    for i in 11..12 {
         hanoi(i)
     }
 }

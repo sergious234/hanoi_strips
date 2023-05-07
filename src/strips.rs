@@ -20,7 +20,7 @@ enum EstadoMeta {
     Acc,
 }
 
-const VISITADOS_SIZE: [usize; 10] = [
+const VISITADOS_SIZE: [usize; 11] = [
     3,
     17,
     37,
@@ -31,6 +31,7 @@ const VISITADOS_SIZE: [usize; 10] = [
     23779,
     71105,
     213629,
+    639176,
 ];
 
 #[allow(dead_code)]
