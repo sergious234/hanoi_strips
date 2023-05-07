@@ -3,7 +3,6 @@ use std::hash::{Hash, Hasher};
 use std::ops::Deref;
 use std::rc::Rc;
 
-
 #[derive(Clone, Hash, PartialEq, Eq, Copy, PartialOrd, Ord)]
 pub enum Meta {
     Sobre(i8, i8),
@@ -11,17 +10,16 @@ pub enum Meta {
     Despejado(i8),
 }
 
-
 type MetaS = Meta;
 
 #[derive(Clone, Ord, Copy, PartialOrd)]
 pub struct Apilar {
-    x: i8,
+    pub x: i8,
     y: i8,
     z: i8,
-    pub lista_adicion: [MetaS; 2], //Vec<Rc<Meta>>,
+    pub lista_adicion: [MetaS; 2],   //Vec<Rc<Meta>>,
     pub lista_supresion: [MetaS; 2], // Vec<Rc<Meta>>,
-    pub precondiciones: [MetaS; 4], // Vec<Rc<Meta>>,
+    pub precondiciones: [MetaS; 4],  // Vec<Rc<Meta>>,
 }
 
 impl PartialEq for Apilar {
@@ -47,22 +45,16 @@ impl Apilar {
     }
 
     pub fn new(x: i8, y: i8, z: i8) -> Self {
-        let lista_adicion: [MetaS; 2] = [
-            Meta::Despejado(y).into(),
-            Meta::Sobre(x,z).into()
-        ];
+        let lista_adicion: [MetaS; 2] = [Meta::Despejado(y).into(), Meta::Sobre(x, z).into()];
 
         let precondiciones: [MetaS; 4] = [
             Meta::Menor(x, z).into(),
             Meta::Sobre(x, y).into(),
             Meta::Despejado(x).into(),
-            Meta::Despejado(z).into() 
+            Meta::Despejado(z).into(),
         ];
 
-        let lista_supresion: [MetaS; 2] = [
-            Meta::Despejado(z).into(),
-            Meta::Sobre(x,y).into()
-        ];
+        let lista_supresion: [MetaS; 2] = [Meta::Despejado(z).into(), Meta::Sobre(x, y).into()];
 
         Apilar {
             x,
@@ -106,8 +98,7 @@ impl Apilar {
 
         let conj = [
             self.precondiciones[2].clone(),
-            self.precondiciones[3].clone()
-
+            self.precondiciones[3].clone(),
         ]; //Vec::with_capacity(2);
 
         /*
@@ -163,17 +154,13 @@ impl Apilar {
                 });
 
                 //let mut despejados: Vec<&i8> = Vec::new();
-                estado_actual
-                    .recursos
-                    .iter()
-                    .rev()
-                    .for_each(|item| {
-                        if let Meta::Despejado(x2) = item {
-                            if *x2 < 0 || *x2 > coso_que_mover {
-                                posibilidades.push(Apilar::new(coso_que_mover, *x, x2.clone()));
-                            }
+                estado_actual.recursos.iter().rev().for_each(|item| {
+                    if let Meta::Despejado(x2) = item {
+                        if *x2 < 0 || *x2 > coso_que_mover {
+                            posibilidades.push(Apilar::new(coso_que_mover, *x, x2.clone()));
                         }
-                    });
+                    }
+                });
                 // estado_actual.recursos.iter().for_each(|item| {
                 //     if let Meta::Despejado(x2) = item {
                 //         if *x2 < 0 || *x2 > coso_que_mover {

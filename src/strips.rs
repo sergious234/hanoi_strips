@@ -1,10 +1,10 @@
 use itertools::Itertools;
+use std::ops::Deref;
+use std::rc::Rc;
 use std::{
     collections::{HashSet, VecDeque},
     time::Instant,
 };
-use std::ops::Deref;
-use std::rc::Rc;
 
 use crate::{
     accion::{Apilar, Meta},
@@ -48,7 +48,7 @@ impl Strips {
             let estado_actual = self.estados.pop_back().expect("No quedan estados WTF");
             if estado_actual.stack_objetivos.is_empty() {
                 let end = Instant::now();
-                println!("{} Solucion: ", self.visitados.len());
+                println!("Solucion: ");
                 estado_actual
                     .solucion
                     .iter()
@@ -75,16 +75,21 @@ impl Strips {
             .back()
             .expect("No quedan objetivos WTF");
 
-        let estado = match elemento.deref() {
+        let estado = match *elemento {
             Stackeable::Accion(acc) => {
-                let copia = if acc.es_ejecutable(estado_actual) {
-                    acc.aplica_accion(estado_actual)
-                } else {
-                    acc.add_prerequisitos(estado_actual)
-                };
+                match !estado_actual.solucion.is_empty() {
+                    true if estado_actual.solucion.last().unwrap().x == acc.x => EstadoMeta::Bucle,
 
-                self.estados.push_back(copia);
-                EstadoMeta::Acc
+                    _ => {
+                        let copia = if acc.es_ejecutable(estado_actual) {
+                            acc.aplica_accion(estado_actual)
+                        } else {
+                            acc.add_prerequisitos(estado_actual)
+                        };
+                        self.estados.push_back(copia);
+                        EstadoMeta::Acc
+                    }
+                }
             }
             Stackeable::Objetivo(ref meta_actual) => self.meta_simple(estado_actual, meta_actual),
             Stackeable::Conjuncion(ref con) => self.meta_compuesta(estado_actual, con),
@@ -116,7 +121,9 @@ impl Strips {
 
         for pos in posibilidades {
             let mut copia = estado_actual.copy();
-            copia.stack_objetivos.push_back(Stackeable::Accion(pos).into());
+            copia
+                .stack_objetivos
+                .push_back(Stackeable::Accion(pos).into());
             siguientes_estados.push_back(copia);
         }
 
@@ -134,8 +141,7 @@ impl Strips {
         }
 
         let len: usize = conj.len();
-        let permutaciones: Vec<Vec<&Meta>> =
-            conj.iter().permutations(len).unique().collect();
+        let permutaciones: Vec<Vec<&Meta>> = conj.iter().permutations(len).unique().collect();
 
         permutaciones.into_iter().for_each(|metas| {
             let mut copia = estado_actual.clone();

@@ -1,5 +1,5 @@
 use std::{
-    collections::{VecDeque, BTreeSet},
+    collections::{BTreeSet, VecDeque},
     hash::{Hash, Hasher},
 };
 
@@ -11,15 +11,13 @@ use crate::{
 };
 use std::ops::Deref;
 
-
 type RecType = BTreeSet<Meta>;
-
 
 #[derive(Clone)]
 pub struct StripsState {
     pub stack_objetivos: VecDeque<Stackeable>,
     pub recursos: RecType, //BTreeSet<Rc<Meta>>,
-    pub solucion: Vec<Apilar>, 
+    pub solucion: Vec<Apilar>,
     //pub pre_req_buffer: Option<[Rc<Stackeable>; 4]>,
     //pub buffer_len: usize,
 }
@@ -54,13 +52,12 @@ impl Eq for StripsState {}
 
 impl StripsState {
     pub fn new(ea: Vec<Meta>, objetivos: Vec<Stackeable>) -> StripsState {
-        
         /*
         let n_obj = objetivos.into_iter()
             .map(|o| o)
             .collect();
 
-        
+
         let n_recursos: Vec<Rc<Meta>> = ea.into_iter()
             .map(|r| Rc::new(r))
             .collect();
@@ -70,7 +67,7 @@ impl StripsState {
             solucion: Vec::with_capacity(325),
             recursos: RecType::from_iter(ea),
             //pre_req_buffer: None,
-//            buffer_len: 0
+            //            buffer_len: 0
         }
     }
 
@@ -116,7 +113,7 @@ impl StripsState {
         let o_rec = self.recursos.clone();
         let o_solucion = self.solucion.clone(); //Vec::with_capacity(self.solucion.len());
 
-        StripsState{
+        StripsState {
             solucion: o_solucion,
             recursos: o_rec,
             stack_objetivos: o_stack,
@@ -124,7 +121,6 @@ impl StripsState {
             //buffer_len: 0,
         }
     }
-
 }
 
 impl Hash for StripsState {

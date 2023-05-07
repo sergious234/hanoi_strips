@@ -1,4 +1,3 @@
-
 use strips::Strips;
 use stripsstate::StripsState;
 
@@ -14,7 +13,7 @@ pub mod stripsstate;
 
 fn main() {
     let mut estado_actual = Vec::new();
-    const DISCOS: i8 = 8;
+    const DISCOS: i8 = 9;
 
     estado_actual.push(Meta::Despejado(1));
     estado_actual.push(Meta::Despejado(-2));
@@ -50,7 +49,6 @@ fn main() {
         meta_final.push(Meta::Sobre(i, i + 1));
     }
     meta_final.push(Meta::Sobre(DISCOS, -3));
-
 
     println!("{}", u64::MAX % 128);
     let _visitados: [u128; 127] = [0; 127];
