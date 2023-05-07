@@ -12,7 +12,7 @@ pub mod strips;
 pub mod stripsstate;
 
 fn main() {
-    for i in 10..=10 {
+    for i in 11..=11 {
         hanoi(i)
     }
 }

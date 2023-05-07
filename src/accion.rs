@@ -159,7 +159,7 @@ impl Apilar {
                     if let Meta::Sobre(x2, y2) = recurso {
                         if x == *y2 {
                             coso_que_mover = *x2;
-                            break
+                            break;
                         }
                     }
                 }
@@ -171,7 +171,7 @@ impl Apilar {
                             coso_que_mover = *x2;
                             return true
                         }
-                    } false 
+                    } false
                 });
                 */
 

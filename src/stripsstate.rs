@@ -1,5 +1,5 @@
 use std::{
-    collections::{BTreeSet, VecDeque},
+    collections::{BTreeSet, VecDeque, HashSet},
     hash::{Hash, Hasher},
 };
 
@@ -25,6 +25,12 @@ impl PartialEq for StripsState {
         if self.stack_objetivos.len() != other.stack_objetivos.len() {
             return false;
         }
+
+        /*
+         * Muy importante esta linea, añade una mejora de ~200ms para
+         * 11 discos en mi ordenador.
+         *
+         */
         assert_eq!(self.stack_objetivos.len(), other.stack_objetivos.len());
         for i in 0..self.stack_objetivos.len() {
             if self.stack_objetivos.get(i) != other.stack_objetivos.get(i) {
@@ -32,6 +38,10 @@ impl PartialEq for StripsState {
             }
         }
 
+        /*
+         * Comprobar si el len() de ambos sets empeora el rendimiento
+         * porque el metodo is_subset parece que ya comprueba eso.
+         */
         if !self.recursos.is_subset(&other.recursos) {
             return false;
         }
@@ -51,23 +61,17 @@ impl Eq for StripsState {}
 impl StripsState {
     pub fn new(ea: Vec<Meta>, objetivos: Vec<Stackeable>) -> StripsState {
         /*
-        let n_obj = objetivos.into_iter()
-            .map(|o| o)
-            .collect();
-
-
-        let n_recursos: Vec<Rc<Meta>> = ea.into_iter()
-            .map(|r| Rc::new(r))
-            .collect();
-        */
-        let mut so = VecDeque::with_capacity(89);//.append(&mut objetivos.into());
+         * HardCodear esto da una mejora de unos ~100ms
+         * en talla 11
+         *
+         *
+         */
+        let mut so = VecDeque::with_capacity(89);
         so.append(&mut objetivos.into());
         StripsState {
-            stack_objetivos: so, //objetivos.into(),
+            stack_objetivos: so,
             solucion: Vec::with_capacity(325),
             recursos: RecType::from_iter(ea),
-            //pre_req_buffer: None,
-            //            buffer_len: 0
         }
     }
 

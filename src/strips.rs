@@ -60,10 +60,6 @@ impl Strips {
         while !self.estados.is_empty() {
             // assert!(!self.estados.is_empty());
             let estado_actual = self.estados.pop_back().expect("No quedan estados WTF");
-            if estado_actual.stack_objetivos.len() > max_estados {
-                max_estados = self.estados.len();
-            }
-            
 
             if estado_actual.stack_objetivos.is_empty() {
                 let end = Instant::now();
@@ -136,7 +132,6 @@ impl Strips {
             .genera_posibilidades(meta_actual, estado_actual);
 
         for pos in posibilidades {
-            
             let mut copia = estado_actual.clone();
             copia
                 .stack_objetivos
