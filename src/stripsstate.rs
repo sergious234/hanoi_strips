@@ -60,8 +60,10 @@ impl StripsState {
             .map(|r| Rc::new(r))
             .collect();
         */
+        let mut so = VecDeque::with_capacity(89);//.append(&mut objetivos.into());
+        so.append(&mut objetivos.into());
         StripsState {
-            stack_objetivos: objetivos.into(),
+            stack_objetivos: so, //objetivos.into(),
             solucion: Vec::with_capacity(325),
             recursos: RecType::from_iter(ea),
             //pre_req_buffer: None,

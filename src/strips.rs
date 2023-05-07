@@ -56,15 +56,15 @@ impl Strips {
         let mut its = 0;
         // let estado_actual;
         let start = Instant::now();
-        // let mut max_estados = 0;
+        let mut max_estados = 0;
         while !self.estados.is_empty() {
-            /*
-            if self.estados.len() > max_estados {
-                max_estados = self.estados.len();
-            }
-            */
             // assert!(!self.estados.is_empty());
             let estado_actual = self.estados.pop_back().expect("No quedan estados WTF");
+            if estado_actual.stack_objetivos.len() > max_estados {
+                max_estados = self.estados.len();
+            }
+            
+
             if estado_actual.stack_objetivos.is_empty() {
                 let end = Instant::now();
                 /*
@@ -79,7 +79,7 @@ impl Strips {
                 break;
             }
 
-            its += 1;
+            // its += 1;
             if self.visitados.contains(&estado_actual) {
                 continue;
             }
@@ -87,7 +87,7 @@ impl Strips {
             self.prueba_estado(&estado_actual);
             self.visitados.insert(estado_actual);
         }
-        println!("Terminamos ! Its: {} {} ", its, 0);
+        println!("Terminamos ! Its: {} {} ", its, max_estados);
     }
 
     #[inline]
@@ -136,15 +136,8 @@ impl Strips {
             .genera_posibilidades(meta_actual, estado_actual);
 
         for pos in posibilidades {
-            /*
-            if !estado_actual.solucion.is_empty()
-                && pos.x == estado_actual.solucion.last().unwrap().x
-            {
-                continue;
-            }
-            */
-
-            let mut copia = estado_actual.copy();
+            
+            let mut copia = estado_actual.clone();
             copia
                 .stack_objetivos
                 .push_back(Stackeable::Accion(pos).into());
