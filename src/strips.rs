@@ -1,9 +1,11 @@
 use itertools::Itertools;
 
 use std::{
-    collections::{HashMap, HashSet, VecDeque},
+    collections::{HashMap, VecDeque},
     time::Instant,
 };
+
+use hashbrown::HashSet;
 
 use crate::{
     accion::{Apilar, Meta},
@@ -127,6 +129,7 @@ impl Strips {
         }
     }
 
+    #[inline]
     fn meta_simple(&mut self, estado_actual: &StripsState, meta_actual: Meta) -> EstadoMeta {
         if estado_actual.cumple_meta(&meta_actual) {
             return EstadoMeta::CumpleMeta;
@@ -157,6 +160,7 @@ impl Strips {
         }
     }
 
+    #[inline]
     fn meta_compuesta(&mut self, estado_actual: &StripsState, conj: [Meta; 2]) -> EstadoMeta {
         if estado_actual.cumple_conjuncion(&conj) {
             return EstadoMeta::CumpleMeta;
