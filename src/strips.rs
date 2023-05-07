@@ -43,7 +43,7 @@ impl Strips {
             .cloned()
             .unwrap_or(VISITADOS_SIZE.last().unwrap() * 2);
         let mut s = Strips {
-            estados: VecDeque::new(),
+            estados: VecDeque::with_capacity(2693),
             visitados: HashSet::with_capacity(visitados_size),
             acciones_disponibles: acciones,
             objetivo_meta: meta,
@@ -56,7 +56,14 @@ impl Strips {
         let mut its = 0;
         // let estado_actual;
         let start = Instant::now();
+        // let mut max_estados = 0;
         while !self.estados.is_empty() {
+            /*
+            if self.estados.len() > max_estados {
+                max_estados = self.estados.len();
+            }
+            */
+            // assert!(!self.estados.is_empty());
             let estado_actual = self.estados.pop_back().expect("No quedan estados WTF");
             if estado_actual.stack_objetivos.is_empty() {
                 let end = Instant::now();
@@ -80,7 +87,7 @@ impl Strips {
             self.prueba_estado(&estado_actual);
             self.visitados.insert(estado_actual);
         }
-        println!("Terminamos ! Its: {} {} ", its, self.visitados.len());
+        println!("Terminamos ! Its: {} {} ", its, 0);
     }
 
     #[inline]
@@ -100,7 +107,7 @@ impl Strips {
                 self.estados.push_back(copia);
                 EstadoMeta::Acc
             }
-            Stackeable::Objetivo(ref meta_actual) => self.meta_simple(estado_actual, meta_actual),
+            Stackeable::Objetivo(meta_actual) => self.meta_simple(estado_actual, meta_actual),
             Stackeable::Conjuncion(con) => self.meta_compuesta(estado_actual, con),
         };
 
@@ -114,11 +121,11 @@ impl Strips {
         }
     }
 
-    fn meta_simple(&mut self, estado_actual: &StripsState, meta_actual: &Meta) -> EstadoMeta {
-        if estado_actual.cumple_meta(meta_actual) {
+    fn meta_simple(&mut self, estado_actual: &StripsState, meta_actual: Meta) -> EstadoMeta {
+        if estado_actual.cumple_meta(&meta_actual) {
             return EstadoMeta::CumpleMeta;
         }
-        if Strips::hay_bucle(estado_actual, meta_actual) {
+        if Strips::hay_bucle(estado_actual, &meta_actual) {
             return EstadoMeta::Bucle;
         }
 
@@ -184,6 +191,7 @@ impl Strips {
         EstadoMeta::NuevosEstados
     }
 
+    #[inline]
     fn hay_bucle(estado_actual: &StripsState, meta_actual: &Meta) -> bool {
         estado_actual.cumple_meta_bucle(meta_actual)
     }

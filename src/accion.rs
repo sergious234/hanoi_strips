@@ -133,7 +133,7 @@ impl Apilar {
         copia
     }
 
-    pub fn genera_posibilidades(&self, meta: &Meta, estado_actual: &StripsState) -> Vec<Apilar> {
+    pub fn genera_posibilidades(&self, meta: Meta, estado_actual: &StripsState) -> Vec<Apilar> {
         let mut posibilidades: Vec<Apilar> = Vec::new();
         let last_mov = if !estado_actual.solucion.is_empty() {
             estado_actual.solucion.last().unwrap().x
@@ -145,8 +145,8 @@ impl Apilar {
             Meta::Sobre(x, y) => {
                 for meta in estado_actual.recursos.iter() {
                     if let Meta::Sobre(x2, y2) = meta.deref() {
-                        if x == x2 && x != y2 && (x <= y || *y < 0) && x != &last_mov {
-                            posibilidades.push(Apilar::new(*x, *y2, *y))
+                        if x == *x2 && x != *y2 && (x <= y || y < 0) && x != last_mov {
+                            posibilidades.push(Apilar::new(x, *y2, y))
                         }
                     }
                 }
@@ -157,7 +157,7 @@ impl Apilar {
 
                 for recurso in &estado_actual.recursos {
                     if let Meta::Sobre(x2, y2) = recurso {
-                        if x == y2 {
+                        if x == *y2 {
                             coso_que_mover = *x2;
                             break
                         }
@@ -180,7 +180,7 @@ impl Apilar {
                     estado_actual.recursos.iter().rev().for_each(|item| {
                         if let Meta::Despejado(donde) = item {
                             if *donde < 0 || *donde > coso_que_mover {
-                                posibilidades.push(Apilar::new(coso_que_mover, *x, *donde));
+                                posibilidades.push(Apilar::new(coso_que_mover, x, *donde));
                             }
                         }
                     });
