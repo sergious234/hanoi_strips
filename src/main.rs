@@ -11,9 +11,17 @@ pub mod stackeable;
 pub mod strips;
 pub mod stripsstate;
 
+
+
 fn main() {
+    for i in 10..11 {
+        hanoi(i)
+    }
+}
+
+fn hanoi(DISCOS: i8) {
     let mut estado_actual = Vec::new();
-    const DISCOS: i8 = 9;
+    //const DISCOS: i8 = 10;
 
     estado_actual.push(Meta::Despejado(1));
     estado_actual.push(Meta::Despejado(-2));
@@ -50,11 +58,8 @@ fn main() {
     }
     meta_final.push(Meta::Sobre(DISCOS, -3));
 
-    println!("{}", u64::MAX % 128);
-    let _visitados: [u128; 127] = [0; 127];
-
     let estado_inicial = StripsState::new(estado_actual, objetivos);
-    let strips_solver = Strips::new(estado_inicial, Apilar::new(0, 0, 0), meta_final);
+    let strips_solver = Strips::new(estado_inicial, Apilar::new(0, 0, 0), meta_final, DISCOS);
 
     strips_solver.resolver();
 }

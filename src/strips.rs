@@ -1,6 +1,6 @@
 use itertools::Itertools;
-use std::ops::Deref;
-use std::rc::Rc;
+
+
 use std::{
     collections::{HashSet, VecDeque},
     time::Instant,
@@ -20,6 +20,19 @@ enum EstadoMeta {
     Acc,
 }
 
+const VISITADOS_SIZE: [usize; 10] = [
+    3,
+    17,
+    37,
+    263,
+    757,
+    2589,
+    7762,
+    23779,
+    71105,
+    213629,
+];
+
 #[allow(dead_code)]
 pub struct Strips {
     estados: VecDeque<StripsState>,
@@ -29,10 +42,11 @@ pub struct Strips {
 }
 
 impl Strips {
-    pub fn new(estado_inicial: StripsState, acciones: Apilar, meta: Vec<Meta>) -> Strips {
+    pub fn new(estado_inicial: StripsState, acciones: Apilar, meta: Vec<Meta>, n_discos: i8) -> Strips {
+        let visitados_size: usize = VISITADOS_SIZE.get((n_discos-1) as usize).cloned().unwrap_or(VISITADOS_SIZE.last().unwrap()*2);
         let mut s = Strips {
             estados: VecDeque::new(),
-            visitados: HashSet::with_capacity(3256514),
+            visitados: HashSet::with_capacity(visitados_size),
             acciones_disponibles: acciones,
             objetivo_meta: meta,
         };
@@ -48,11 +62,13 @@ impl Strips {
             let estado_actual = self.estados.pop_back().expect("No quedan estados WTF");
             if estado_actual.stack_objetivos.is_empty() {
                 let end = Instant::now();
+                /*
                 println!("Solucion: ");
                 estado_actual
                     .solucion
                     .iter()
                     .for_each(|e| println!("{:?}", e.to_string()));
+                    */
                 println!("{}ms", end.duration_since(start).as_millis());
                 println!("{}", estado_actual.solucion.len());
                 break;
@@ -138,6 +154,10 @@ impl Strips {
     fn meta_compuesta(&mut self, estado_actual: &StripsState, conj: [Meta; 2]) -> EstadoMeta {
         if estado_actual.cumple_conjuncion(&conj) {
             return EstadoMeta::CumpleMeta;
+        }
+
+        if conj.iter().any(|m| Strips::hay_bucle(estado_actual, m)) {
+            return EstadoMeta::Bucle;
         }
 
         let len: usize = conj.len();
