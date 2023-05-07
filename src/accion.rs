@@ -17,9 +17,6 @@ pub struct Apilar {
     pub x: i8,
     y: i8,
     z: i8,
-    pub lista_adicion: [MetaS; 2],   //Vec<Rc<Meta>>,
-    pub lista_supresion: [MetaS; 2], // Vec<Rc<Meta>>,
-    // pub precondiciones: [MetaS; 4],  // Vec<Rc<Meta>>,
 }
 
 impl PartialEq for Apilar {
@@ -45,25 +42,21 @@ impl Apilar {
     }
 
     pub fn new(x: i8, y: i8, z: i8) -> Self {
-        let lista_adicion: [MetaS; 2] = [Meta::Despejado(y).into(), Meta::Sobre(x, z).into()];
-
-        let precondiciones: [MetaS; 4] = [
-            Meta::Menor(x, z).into(),
-            Meta::Sobre(x, y).into(),
-            Meta::Despejado(x).into(),
-            Meta::Despejado(z).into(),
-        ];
-
-        let lista_supresion: [MetaS; 2] = [Meta::Despejado(z).into(), Meta::Sobre(x, y).into()];
-
         Apilar {
             x,
             y,
             z,
-            lista_adicion,
-            lista_supresion,
-            //precondiciones,
         }
+    }
+
+    #[inline]
+    fn lista_supresion(&self) -> [MetaS; 2] {
+        [Meta::Despejado(self.z).into(), Meta::Sobre(self.x, self.y).into()]
+    }
+
+    #[inline]
+    fn lista_adicion(&self) -> [MetaS; 2] {
+        [Meta::Despejado(self.y).into(), Meta::Sobre(self.x, self.z).into()]
     }
 
     pub fn es_ejecutable(&self, estado_actual: &StripsState) -> bool {
@@ -84,10 +77,10 @@ impl Apilar {
         let mut estado_copia = estado_actual.copy();
 
         estado_copia.stack_objetivos.pop_back();
-        self.lista_supresion.iter().for_each(|item| {
+        self.lista_supresion().iter().for_each(|item| {
             estado_copia.recursos.remove(item);
         });
-        self.lista_adicion.iter().for_each(|item| {
+        self.lista_adicion().iter().for_each(|item| {
             estado_copia.recursos.insert(item.clone().into());
         });
         estado_copia.solucion.push(self.clone());
