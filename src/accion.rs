@@ -19,7 +19,7 @@ pub struct Apilar {
     z: i8,
     pub lista_adicion: [MetaS; 2],   //Vec<Rc<Meta>>,
     pub lista_supresion: [MetaS; 2], // Vec<Rc<Meta>>,
-    pub precondiciones: [MetaS; 4],  // Vec<Rc<Meta>>,
+    // pub precondiciones: [MetaS; 4],  // Vec<Rc<Meta>>,
 }
 
 impl PartialEq for Apilar {
@@ -62,12 +62,20 @@ impl Apilar {
             z,
             lista_adicion,
             lista_supresion,
-            precondiciones,
+            //precondiciones,
         }
     }
 
     pub fn es_ejecutable(&self, estado_actual: &StripsState) -> bool {
-        self.precondiciones
+
+        let precondiciones: [MetaS; 4] = [
+            Meta::Menor(self.x, self.z).into(),
+            Meta::Sobre(self.x, self.y).into(),
+            Meta::Despejado(self.x).into(),
+            Meta::Despejado(self.z).into(),
+        ];
+
+        precondiciones
             .iter()
             .all(|item| estado_actual.recursos.contains(item))
     }
@@ -89,16 +97,23 @@ impl Apilar {
     pub fn add_prerequisitos(&self, estado_actual: &StripsState) -> StripsState {
         let mut copia: StripsState = estado_actual.copy();
 
+        let precondiciones: [MetaS; 4] = [
+            Meta::Menor(self.x, self.z).into(),
+            Meta::Sobre(self.x, self.y).into(),
+            Meta::Despejado(self.x).into(),
+            Meta::Despejado(self.z).into(),
+        ];
+
         //assert_eq!(self.precondiciones.len(), 4);
-        self.precondiciones.iter().take(2).for_each(|pre| {
+        precondiciones.iter().take(2).for_each(|pre| {
             copia
                 .stack_objetivos
                 .push_back(Stackeable::Objetivo(pre.deref().clone()).into())
         });
 
         let conj = [
-            self.precondiciones[2].clone(),
-            self.precondiciones[3].clone(),
+            precondiciones[2].clone(),
+            precondiciones[3].clone(),
         ]; //Vec::with_capacity(2);
 
         /*
