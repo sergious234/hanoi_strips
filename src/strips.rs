@@ -1,7 +1,7 @@
 use itertools::Itertools;
 
 use std::{
-    collections::{HashSet, VecDeque},
+    collections::{HashMap, HashSet, VecDeque},
     time::Instant,
 };
 
@@ -23,10 +23,13 @@ const VISITADOS_SIZE: [usize; 12] = [
     3, 17, 37, 263, 757, 2589, 7762, 23779, 71105, 213629, 639176, 1915467,
 ];
 
+const MULTI_VISITADOS_SIZE: [usize; 12] =
+    [2, 3, 6, 42, 110, 348, 968, 2957, 8657, 24757, 73336, 216709];
+
 #[allow(dead_code)]
 pub struct Strips {
     estados: VecDeque<StripsState>,
-    visitados: HashSet<StripsState>,
+    visitados: HashMap<usize, HashSet<StripsState>>,
     acciones_disponibles: Apilar,
     objetivo_meta: Vec<Meta>,
 }
@@ -39,12 +42,19 @@ impl Strips {
         n_discos: i8,
     ) -> Strips {
         let visitados_size: usize = VISITADOS_SIZE
-            .get((n_discos - 1) as usize)
+            .get((n_discos - 2) as usize)
             .cloned()
             .unwrap_or(VISITADOS_SIZE.last().unwrap() * 2);
+
+        let multi_visitados_size = MULTI_VISITADOS_SIZE[(n_discos - 1) as usize];
+        let mut visitados_map = HashMap::with_capacity(10);
+        for i in 0..10 {
+            visitados_map.insert(i, HashSet::with_capacity(multi_visitados_size));
+        }
+
         let mut s = Strips {
             estados: VecDeque::with_capacity(2693),
-            visitados: HashSet::with_capacity(visitados_size),
+            visitados: visitados_map, // HashSet::with_capacity(visitados_size),
             acciones_disponibles: acciones,
             objetivo_meta: meta,
         };
@@ -53,37 +63,44 @@ impl Strips {
     }
 
     pub fn resolver(mut self) {
-        let mut its = 0;
-        // let estado_actual;
         let start = Instant::now();
-        let mut max_estados = 0;
         while !self.estados.is_empty() {
             // assert!(!self.estados.is_empty());
             let estado_actual = self.estados.pop_back().expect("No quedan estados WTF");
 
             if estado_actual.stack_objetivos.is_empty() {
                 let end = Instant::now();
-                /*
+
                 println!("Solucion: ");
+                /*
                 estado_actual
                     .solucion
                     .iter()
                     .for_each(|e| println!("{:?}", e.to_string()));
                     */
+
                 println!("{}ms", end.duration_since(start).as_millis());
-                println!("{}", estado_actual.solucion.len());
                 break;
             }
 
             // its += 1;
-            if self.visitados.contains(&estado_actual) {
+            let seccion = estado_actual.stack_objetivos.len() % 10;
+            if self
+                .visitados
+                .get(&seccion)
+                .unwrap()
+                .contains(&estado_actual)
+            {
                 continue;
             }
 
             self.prueba_estado(&estado_actual);
-            self.visitados.insert(estado_actual);
+            self.visitados
+                .get_mut(&seccion)
+                .unwrap()
+                .insert(estado_actual);
         }
-        println!("Terminamos ! Its: {} {} ", its, max_estados);
+        println!("Terminamos ! Its: {} {} \n", 0, 0);
     }
 
     #[inline]

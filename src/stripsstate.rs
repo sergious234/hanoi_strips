@@ -1,5 +1,5 @@
 use std::{
-    collections::{BTreeSet, VecDeque, HashSet},
+    collections::{BTreeSet, HashSet, VecDeque},
     hash::{Hash, Hasher},
 };
 
