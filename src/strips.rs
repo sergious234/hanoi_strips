@@ -29,7 +29,7 @@ const MULTI_VISITADOS_SIZE: [usize; 12] =
 #[allow(dead_code)]
 pub struct Strips {
     estados: VecDeque<StripsState>,
-    visitados: HashMap<usize, HashSet<StripsState>>,
+    visitados: HashSet<StripsState>,
     acciones_disponibles: Apilar,
     objetivo_meta: Vec<Meta>,
 }
@@ -42,19 +42,21 @@ impl Strips {
         n_discos: i8,
     ) -> Strips {
         let visitados_size: usize = VISITADOS_SIZE
-            .get((n_discos - 2) as usize)
+            .get((n_discos - 1) as usize)
             .cloned()
             .unwrap_or(VISITADOS_SIZE.last().unwrap() * 2);
 
+        /*
         let multi_visitados_size = MULTI_VISITADOS_SIZE[(n_discos - 1) as usize];
         let mut visitados_map = HashMap::with_capacity(10);
         for i in 0..10 {
             visitados_map.insert(i, HashSet::with_capacity(multi_visitados_size));
         }
+        */
 
         let mut s = Strips {
             estados: VecDeque::with_capacity(2693),
-            visitados: visitados_map, // HashSet::with_capacity(visitados_size),
+            visitados: HashSet::with_capacity(visitados_size),
             acciones_disponibles: acciones,
             objetivo_meta: meta,
         };
@@ -84,21 +86,12 @@ impl Strips {
             }
 
             // its += 1;
-            let seccion = estado_actual.stack_objetivos.len() % 10;
-            if self
-                .visitados
-                .get(&seccion)
-                .unwrap()
-                .contains(&estado_actual)
-            {
+            if self.visitados.contains(&estado_actual) {
                 continue;
             }
 
             self.prueba_estado(&estado_actual);
-            self.visitados
-                .get_mut(&seccion)
-                .unwrap()
-                .insert(estado_actual);
+            self.visitados.insert(estado_actual);
         }
         println!("Terminamos ! Its: {} {} \n", 0, 0);
     }
