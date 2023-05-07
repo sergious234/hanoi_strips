@@ -32,7 +32,7 @@ impl Strips {
     pub fn new(estado_inicial: StripsState, acciones: Apilar, meta: Vec<Meta>) -> Strips {
         let mut s = Strips {
             estados: VecDeque::new(),
-            visitados: HashSet::with_capacity(826548),
+            visitados: HashSet::with_capacity(3256514),
             acciones_disponibles: acciones,
             objetivo_meta: meta,
         };
@@ -78,19 +78,13 @@ impl Strips {
 
         let estado = match *elemento {
             Stackeable::Accion(acc) => {
-                match !estado_actual.solucion.is_empty() {
-                    true if estado_actual.solucion.last().unwrap().x == acc.x => EstadoMeta::Bucle,
-
-                    _ => {
-                        let copia = if acc.es_ejecutable(estado_actual) {
-                            acc.aplica_accion(estado_actual)
-                        } else {
-                            acc.add_prerequisitos(estado_actual)
-                        };
-                        self.estados.push_back(copia);
-                        EstadoMeta::Acc
-                    }
-                }
+                let copia = if acc.es_ejecutable(estado_actual) {
+                    acc.aplica_accion(estado_actual)
+                } else {
+                    acc.add_prerequisitos(estado_actual)
+                };
+                self.estados.push_back(copia);
+                EstadoMeta::Acc
             }
             Stackeable::Objetivo(ref meta_actual) => self.meta_simple(estado_actual, meta_actual),
             Stackeable::Conjuncion(con) => self.meta_compuesta(estado_actual, con),
@@ -121,7 +115,9 @@ impl Strips {
             .genera_posibilidades(meta_actual, estado_actual);
 
         for pos in posibilidades {
-            if !estado_actual.solucion.is_empty() && pos.x == estado_actual.solucion.last().unwrap().x {
+            if !estado_actual.solucion.is_empty()
+                && pos.x == estado_actual.solucion.last().unwrap().x
+            {
                 continue;
             }
             let mut copia = estado_actual.copy();
