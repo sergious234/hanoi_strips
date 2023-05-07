@@ -162,8 +162,21 @@ impl Strips {
             return EstadoMeta::Bucle;
         }
 
-        let len: usize = conj.len();
-        let permutaciones: Vec<Vec<&Meta>> = conj.iter().permutations(len).unique().collect();
+        /*
+         * Optimizacion para Hanoi:
+         *  Como a esta metodo solo van a llegar 2 metas [A,B] se pueden
+         *  crear las permutaciones a mano tal que:
+         *      [A,B]
+         *      [B,A]
+         *
+         *  Esto aumenta el rendimiento unos 100ms en mi maquina 
+         *  para DISCOS=9
+         *
+         * */
+        let permutaciones: [[Meta;2];2] = [
+            [conj[0], conj[1]],
+            [conj[1], conj[0]]
+        ];
 
         permutaciones.into_iter().for_each(|metas| {
             let mut copia = estado_actual.clone();

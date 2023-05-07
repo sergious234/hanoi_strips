@@ -16,7 +16,7 @@ type RecType = BTreeSet<Meta>;
 #[derive(Clone)]
 pub struct StripsState {
     pub stack_objetivos: VecDeque<Stackeable>,
-    pub recursos: RecType, //BTreeSet<Rc<Meta>>,
+    pub recursos: RecType, 
     pub solucion: Vec<Apilar>,
     //pub pre_req_buffer: Option<[Rc<Stackeable>; 4]>,
     //pub buffer_len: usize,
@@ -95,10 +95,10 @@ impl StripsState {
     }
 
     #[inline]
-    pub fn add_metas(&mut self, metas: Vec<&Meta>) {
+    pub fn add_metas(&mut self, metas: [Meta; 2]) {
         metas.into_iter().for_each(|m| {
             self.stack_objetivos
-                .push_back(Stackeable::Objetivo(*m).into())
+                .push_back(Stackeable::Objetivo(m).into())
         });
     }
 
@@ -108,17 +108,16 @@ impl StripsState {
     }
     */
 
+    #[inline]
     pub fn copy(&self) -> Self {
-        let o_stack = self.stack_objetivos.clone(); //VecDeque::with_capacity(self.stack_objetivos.len());
+        let o_stack = self.stack_objetivos.clone(); 
         let o_rec = self.recursos.clone();
-        let o_solucion = self.solucion.clone(); //Vec::with_capacity(self.solucion.len());
+        let o_solucion = self.solucion.clone(); 
 
         StripsState {
             solucion: o_solucion,
             recursos: o_rec,
             stack_objetivos: o_stack,
-            //pre_req_buffer: None,
-            //buffer_len: 0,
         }
     }
 }
