@@ -66,9 +66,10 @@ impl Strips {
             self.prueba_estado(&estado_actual);
             self.visitados.insert(estado_actual);
         }
-        println!("Terminamos ! Its: {} ", self.visitados.len());
+        println!("Terminamos ! Its: {} {} ", its, self.visitados.len());
     }
 
+    #[inline]
     pub fn prueba_estado(&mut self, estado_actual: &StripsState) {
         let elemento = estado_actual
             .stack_objetivos
@@ -92,7 +93,7 @@ impl Strips {
                 }
             }
             Stackeable::Objetivo(ref meta_actual) => self.meta_simple(estado_actual, meta_actual),
-            Stackeable::Conjuncion(ref con) => self.meta_compuesta(estado_actual, con),
+            Stackeable::Conjuncion(con) => self.meta_compuesta(estado_actual, con),
         };
 
         match estado {
@@ -120,6 +121,9 @@ impl Strips {
             .genera_posibilidades(meta_actual, estado_actual);
 
         for pos in posibilidades {
+            if !estado_actual.solucion.is_empty() && pos.x == estado_actual.solucion.last().unwrap().x {
+                continue;
+            }
             let mut copia = estado_actual.copy();
             copia
                 .stack_objetivos
@@ -135,7 +139,7 @@ impl Strips {
         }
     }
 
-    fn meta_compuesta(&mut self, estado_actual: &StripsState, conj: &[Meta]) -> EstadoMeta {
+    fn meta_compuesta(&mut self, estado_actual: &StripsState, conj: [Meta; 2]) -> EstadoMeta {
         if estado_actual.cumple_conjuncion(&conj) {
             return EstadoMeta::CumpleMeta;
         }
