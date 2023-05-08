@@ -1,10 +1,4 @@
-use itertools::Itertools;
-
-use std::{
-    collections::{HashMap, VecDeque},
-    time::Instant,
-};
-
+use std::{collections::VecDeque, time::Instant};
 use hashbrown::HashSet;
 
 use crate::{
@@ -24,9 +18,6 @@ enum EstadoMeta {
 const VISITADOS_SIZE: [usize; 14] = [
     3, 14, 37, 247, 437, 1065, 2417, 5386, 11876, 25033, 55892, 117509, 253839, 552215,
 ];
-
-const MULTI_VISITADOS_SIZE: [usize; 12] =
-    [2, 3, 6, 42, 110, 348, 968, 2957, 8657, 24757, 73336, 216709];
 
 #[allow(dead_code)]
 pub struct Strips {
@@ -48,48 +39,21 @@ impl Strips {
             .cloned()
             .unwrap_or(VISITADOS_SIZE.last().unwrap() * 2);
 
-        /*
-        let multi_visitados_size = MULTI_VISITADOS_SIZE[(n_discos - 1) as usize];
-        let mut visitados_map = HashMap::with_capacity(10);
-        for i in 0..10 {
-            visitados_map.insert(i, HashSet::with_capacity(multi_visitados_size));
-        }
-        */
-
         let mut s = Strips {
-            estados: VecDeque::with_capacity(2693),
+            estados: VecDeque::with_capacity(11064),
             visitados: HashSet::with_capacity(visitados_size),
             acciones_disponibles: acciones,
             objetivo_meta: meta,
         };
         s.estados.push_back(estado_inicial);
-        return s;
+        s
     }
 
-    pub fn resolver(mut self) {
+    pub fn resolver(mut self) -> Option<u128> {
         let start = Instant::now();
 
-        let max_stack = 0;
-        let max_recursos = 0;
-        let max_solucion = 0;
-
         while !self.estados.is_empty() {
-            // assert!(!self.estados.is_empty());
             let estado_actual = self.estados.pop_back().expect("No quedan estados WTF");
-
-            /*
-            if estado_actual.stack_objetivos.len() > max_stack {
-                max_stack = estado_actual.stack_objetivos.len();
-            }
-
-            if estado_actual.recursos.capacity() > max_recursos {
-                max_recursos = estado_actual.recursos.capacity();
-            }
-
-            if estado_actual.solucion.len() > max_solucion {
-                max_solucion = estado_actual.solucion.len();
-            }
-            */
 
             if estado_actual.stack_objetivos.is_empty() {
                 let end = Instant::now();
@@ -101,13 +65,12 @@ impl Strips {
                     .solucion
                     .iter()
                     .for_each(|e| println!("{:?}", e.to_string()));
-                    */
+                */
 
                 println!("{}ms", end.duration_since(start).as_millis());
-                break;
+                return Some(end.duration_since(start).as_millis());
             }
 
-            // its += 1;
             if self.visitados.contains(&estado_actual) {
                 continue;
             }
@@ -115,6 +78,7 @@ impl Strips {
             self.prueba_estado(&estado_actual);
             self.visitados.insert(estado_actual);
         }
+        None
     }
 
     #[inline]
@@ -138,22 +102,19 @@ impl Strips {
             Stackeable::Conjuncion(con) => self.meta_compuesta(estado_actual, con),
         };
 
-        match estado {
-            EstadoMeta::CumpleMeta => {
-                let mut copia = estado_actual.clone();
-                copia.stack_objetivos.pop_back();
-                self.estados.push_back(copia);
-            }
-            _ => {}
+        if let EstadoMeta::CumpleMeta = estado {
+            let mut copia = estado_actual.clone();
+            copia.stack_objetivos.pop_back();
+            self.estados.push_back(copia);
         }
     }
 
     #[inline]
     fn meta_simple(&mut self, estado_actual: &StripsState, meta_actual: Meta) -> EstadoMeta {
-        if estado_actual.cumple_meta(&meta_actual) {
+        if estado_actual.cumple_meta(meta_actual) {
             return EstadoMeta::CumpleMeta;
         }
-        if Strips::hay_bucle(estado_actual, &meta_actual) {
+        if Strips::hay_bucle(estado_actual, meta_actual) {
             return EstadoMeta::Bucle;
         }
 
@@ -163,38 +124,39 @@ impl Strips {
             .acciones_disponibles
             .genera_posibilidades(meta_actual, estado_actual);
 
-        for pos in posibilidades {
+        for pos in 0..posibilidades.elements {
             let mut copia = estado_actual.clone();
             copia
                 .stack_objetivos
-                .push_back(Stackeable::Accion(pos).into());
+                .push_back(Stackeable::Accion(posibilidades.acciones[pos]));
             siguientes_estados.push_back(copia);
         }
 
         if siguientes_estados.is_empty() {
-            return EstadoMeta::Igual;
+            EstadoMeta::Igual
         } else {
             self.estados.append(&mut siguientes_estados);
-            return EstadoMeta::NuevosEstados;
+            EstadoMeta::NuevosEstados
         }
     }
 
     #[inline]
     fn meta_compuesta(&mut self, estado_actual: &StripsState, conj: [i8; 2]) -> EstadoMeta {
-        
-        let conj: [Meta; 2] = [
-            Meta::Despejado(conj[0]),
-            Meta::Despejado(conj[1]),
-        ];
-
+        let conj: [Meta; 2] = [Meta::Despejado(conj[0]), Meta::Despejado(conj[1])];
 
         if estado_actual.cumple_conjuncion(&conj) {
             return EstadoMeta::CumpleMeta;
         }
 
-        if conj.iter().any(|m| Strips::hay_bucle(estado_actual, m)) {
-            return EstadoMeta::Bucle;
+        if Strips::hay_bucle_conj(estado_actual, conj) {
+            return EstadoMeta::Bucle
         }
+        // if conj
+        //     .into_iter()
+        //     .any(|m| Strips::hay_bucle(estado_actual, m))
+        // {
+        //     return EstadoMeta::Bucle;
+        // }
 
         /*
          * Optimizacion para Hanoi:
@@ -219,8 +181,14 @@ impl Strips {
         EstadoMeta::NuevosEstados
     }
 
+
     #[inline]
-    fn hay_bucle(estado_actual: &StripsState, meta_actual: &Meta) -> bool {
+    fn hay_bucle_conj(estado_actual: &StripsState, conj: [Meta; 2]) -> bool {
+        return estado_actual.cumple_meta_bucle(conj[0]) || estado_actual.cumple_meta_bucle(conj[1])
+    }
+
+    #[inline]
+    fn hay_bucle(estado_actual: &StripsState, meta_actual: Meta) -> bool {
         estado_actual.cumple_meta_bucle(meta_actual)
     }
 }

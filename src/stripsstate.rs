@@ -1,11 +1,9 @@
 use std::{
-    collections::{BTreeSet, VecDeque},
+    collections::VecDeque,
     hash::{Hash, Hasher},
 };
 
 use hashbrown::HashSet;
-
-use crate::N_DISCOS;
 
 use crate::{
     accion::{Apilar, Meta},
@@ -56,49 +54,39 @@ impl PartialEq for StripsState {
          * Comprobar si el len() de ambos sets empeora el rendimiento
          * porque el metodo is_subset parece que ya comprueba eso.
          */
+        return self.recursos.is_subset(&other.recursos)
+        /*
         if !self.recursos.is_subset(&other.recursos) {
             return false;
         }
 
         return true;
+        */
+
     }
 }
 
 impl Eq for StripsState {}
 
-// impl Clone for StripsState {
-//     fn clone(&self) -> Self {
-//         let other_stack = self.stack_objetivos.clone();
-//     }
-// }
-
 impl StripsState {
-    pub fn new(ea: Vec<Meta>, objetivos: Vec<Stackeable>) -> StripsState {
-        /*
-         * HardCodear esto da una mejora de unos ~100ms
-         * en talla 11
-         *
-         *
-         */
+    pub fn new(ea: Vec<Meta>, objetivos: Vec<Stackeable>, n_discos: usize) -> StripsState {
+        //  HardCodear esto da una mejora de unos ~100ms
+        //  en talla 11
 
-        let stack_size = unsafe {
-            STACK_SIZE
-                .get(N_DISCOS)
-                .cloned()
-                .unwrap_or(STACK_SIZE.last().unwrap().clone() * 2)
-        };
-        let recursos_size = unsafe {
-            RECURSOS_SIZE
-                .get(N_DISCOS)
-                .cloned()
-                .unwrap_or(RECURSOS_SIZE.last().unwrap().clone() * 2)
-        };
-        let solucion_size = unsafe {
-            SOLUCION_SIZE
-                .get(N_DISCOS)
-                .cloned()
-                .unwrap_or(SOLUCION_SIZE.last().unwrap().clone() * 2)
-        };
+        let stack_size = STACK_SIZE
+            .get(n_discos - 1)
+            .cloned()
+            .unwrap_or(*STACK_SIZE.last().unwrap() * 2);
+
+        let recursos_size = RECURSOS_SIZE
+            .get(n_discos - 1)
+            .cloned()
+            .unwrap_or(*RECURSOS_SIZE.last().unwrap() * 2);
+
+        let solucion_size = SOLUCION_SIZE
+            .get(n_discos - 1)
+            .cloned()
+            .unwrap_or(*SOLUCION_SIZE.last().unwrap() * 2);
 
         let mut so = VecDeque::with_capacity(stack_size);
         so.append(&mut objetivos.into());
@@ -116,8 +104,8 @@ impl StripsState {
     }
 
     #[inline]
-    pub fn cumple_meta(&self, meta: &Meta) -> bool {
-        self.recursos.contains(meta)
+    pub fn cumple_meta(&self, meta: Meta) -> bool {
+        self.recursos.contains(&meta)
     }
 
     #[inline]
@@ -126,8 +114,8 @@ impl StripsState {
     }
 
     #[inline]
-    pub fn cumple_meta_bucle(&self, meta: &Meta) -> bool {
-        let item = Stackeable::Objetivo(*meta);
+    pub fn cumple_meta_bucle(&self, meta: Meta) -> bool {
+        let item = Stackeable::Objetivo(meta);
 
         for i in 0..self.stack_objetivos.len() - 1 {
             if self.stack_objetivos.get(i).unwrap().deref() == &item {
@@ -135,15 +123,14 @@ impl StripsState {
             }
         }
 
-        return false;
+        false
     }
 
     #[inline]
     pub fn add_metas(&mut self, metas: [Meta; 2]) {
-        metas.into_iter().for_each(|m| {
-            self.stack_objetivos
-                .push_back(Stackeable::Objetivo(m).into())
-        });
+        metas
+            .into_iter()
+            .for_each(|m| self.stack_objetivos.push_back(Stackeable::Objetivo(m)));
     }
 
     /*
@@ -175,8 +162,9 @@ impl Hash for StripsState {
         let mut i: u64 = 33;
         for objetivo in &self.stack_objetivos {
             objetivo.hash(state);
-            i = i + 0x9e3779b9 + (i << 6) + (i >> 2);
+            i += 1;
         }
+        i = i + 0x9e3779b9 + (i << 6) + (i >> 2);
         i.hash(state);
     }
 }

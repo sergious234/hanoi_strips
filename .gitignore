@@ -4,3 +4,4 @@
 /.vscode
 flamegraph.svg
 perf.data
+log.txt
