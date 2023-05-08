@@ -16,6 +16,8 @@ pub mod stackeable;
 pub mod strips;
 pub mod stripsstate;
 
+static mut N_DISCOS: usize = 3;
+
 fn main() {
     let args: Vec<String> = env::args().collect();
 
@@ -30,6 +32,11 @@ fn main() {
         let end: i8 = args.get(2).unwrap().parse().expect("Eso no es un numero!");
 
         for i in start..=end {
+            unsafe {
+                N_DISCOS = i as usize - 1;
+            }
+
+            print!("Discos: {} | ", i);
             hanoi(i);
         }
     }

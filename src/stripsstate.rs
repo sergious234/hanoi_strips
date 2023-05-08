@@ -3,8 +3,9 @@ use std::{
     hash::{Hash, Hasher},
 };
 
-
 use hashbrown::HashSet;
+
+use crate::N_DISCOS;
 
 use crate::{
     accion::{Apilar, Meta},
@@ -13,6 +14,16 @@ use crate::{
 use std::ops::Deref;
 
 type RecType = HashSet<Meta>;
+
+const SOLUCION_SIZE: [usize; 14] = [
+    1, 3, 7, 15, 31, 63, 127, 255, 511, 1023, 2047, 4095, 8191, 16383,
+];
+
+const STACK_SIZE: [usize; 14] = [2, 8, 14, 19, 24, 29, 34, 39, 44, 49, 54, 59, 64, 69];
+
+const RECURSOS_SIZE: [usize; 14] = [
+    7, 14, 28, 56, 56, 56, 112, 112, 112, 112, 224, 224, 224, 224,
+];
 
 #[derive(Clone)]
 pub struct StripsState {
@@ -69,17 +80,37 @@ impl StripsState {
          *
          *
          */
-        let mut so = VecDeque::with_capacity(89);
+
+        let stack_size = unsafe {
+            STACK_SIZE
+                .get(N_DISCOS)
+                .cloned()
+                .unwrap_or(STACK_SIZE.last().unwrap().clone() * 2)
+        };
+        let recursos_size = unsafe {
+            RECURSOS_SIZE
+                .get(N_DISCOS)
+                .cloned()
+                .unwrap_or(RECURSOS_SIZE.last().unwrap().clone() * 2)
+        };
+        let solucion_size = unsafe {
+            SOLUCION_SIZE
+                .get(N_DISCOS)
+                .cloned()
+                .unwrap_or(SOLUCION_SIZE.last().unwrap().clone() * 2)
+        };
+
+        let mut so = VecDeque::with_capacity(stack_size);
         so.append(&mut objetivos.into());
 
-        let mut rec = RecType::with_capacity(224);
-        for r in ea.into_iter(){
+        let mut rec = RecType::with_capacity(recursos_size);
+        for r in ea.into_iter() {
             rec.insert(r);
         }
 
         StripsState {
             stack_objetivos: so,
-            solucion: Vec::with_capacity(325),
+            solucion: Vec::with_capacity(solucion_size),
             recursos: rec,
         }
     }

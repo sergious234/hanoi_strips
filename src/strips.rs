@@ -21,8 +21,8 @@ enum EstadoMeta {
     Acc,
 }
 
-const VISITADOS_SIZE: [usize; 12] = [
-    3, 17, 37, 263, 757, 2589, 7762, 23779, 71105, 213629, 639176, 1915467,
+const VISITADOS_SIZE: [usize; 14] = [
+    3, 14, 37, 247, 437, 1065, 2417, 5386, 11876, 25033, 55892, 117509, 253839, 552215,
 ];
 
 const MULTI_VISITADOS_SIZE: [usize; 12] =
@@ -68,19 +68,33 @@ impl Strips {
 
     pub fn resolver(mut self) {
         let start = Instant::now();
-        let mut max_size = 0;
+
+        let max_stack = 0;
+        let max_recursos = 0;
+        let max_solucion = 0;
+
         while !self.estados.is_empty() {
             // assert!(!self.estados.is_empty());
             let estado_actual = self.estados.pop_back().expect("No quedan estados WTF");
 
-            if estado_actual.recursos.capacity() > max_size {
-                max_size = estado_actual.recursos.capacity();
+            /*
+            if estado_actual.stack_objetivos.len() > max_stack {
+                max_stack = estado_actual.stack_objetivos.len();
             }
+
+            if estado_actual.recursos.capacity() > max_recursos {
+                max_recursos = estado_actual.recursos.capacity();
+            }
+
+            if estado_actual.solucion.len() > max_solucion {
+                max_solucion = estado_actual.solucion.len();
+            }
+            */
 
             if estado_actual.stack_objetivos.is_empty() {
                 let end = Instant::now();
 
-                println!("Solucion: ");
+                // println!("Solucion: ");
                 /*
                 estado_actual
                     .solucion
@@ -100,7 +114,6 @@ impl Strips {
             self.prueba_estado(&estado_actual);
             self.visitados.insert(estado_actual);
         }
-        println!("Terminamos ! Its: {} {} \n", max_size, 0);
     }
 
     #[inline]
