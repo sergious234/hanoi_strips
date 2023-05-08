@@ -68,9 +68,14 @@ impl Strips {
 
     pub fn resolver(mut self) {
         let start = Instant::now();
+        let mut max_size = 0;
         while !self.estados.is_empty() {
             // assert!(!self.estados.is_empty());
             let estado_actual = self.estados.pop_back().expect("No quedan estados WTF");
+
+            if estado_actual.recursos.capacity() > max_size {
+                max_size = estado_actual.recursos.capacity();
+            }
 
             if estado_actual.stack_objetivos.is_empty() {
                 let end = Instant::now();
@@ -95,7 +100,7 @@ impl Strips {
             self.prueba_estado(&estado_actual);
             self.visitados.insert(estado_actual);
         }
-        println!("Terminamos ! Its: {} {} \n", 0, 0);
+        println!("Terminamos ! Its: {} {} \n", max_size, 0);
     }
 
     #[inline]

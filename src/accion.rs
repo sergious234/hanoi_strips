@@ -177,9 +177,9 @@ impl Apilar {
 
                 if coso_que_mover != last_mov {
                     //let mut despejados: Vec<&i8> = Vec::new();
-                    estado_actual.recursos.iter().rev().for_each(|item| {
+                    estado_actual.recursos.iter().for_each(|item| {
                         if let Meta::Despejado(donde) = item {
-                            if *donde < 0 || *donde > coso_que_mover {
+                            if *donde < 0 || (*donde > coso_que_mover && *donde%2 != coso_que_mover%2) {
                                 posibilidades.push(Apilar::new(coso_que_mover, x, *donde));
                             }
                         }

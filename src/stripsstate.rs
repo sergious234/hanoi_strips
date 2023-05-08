@@ -1,7 +1,10 @@
 use std::{
-    collections::{BTreeSet, HashSet, VecDeque},
+    collections::{BTreeSet, VecDeque},
     hash::{Hash, Hasher},
 };
+
+
+use hashbrown::HashSet;
 
 use crate::{
     accion::{Apilar, Meta},
@@ -9,7 +12,7 @@ use crate::{
 };
 use std::ops::Deref;
 
-type RecType = BTreeSet<Meta>;
+type RecType = HashSet<Meta>;
 
 #[derive(Clone)]
 pub struct StripsState {
@@ -68,10 +71,16 @@ impl StripsState {
          */
         let mut so = VecDeque::with_capacity(89);
         so.append(&mut objetivos.into());
+
+        let mut rec = RecType::with_capacity(224);
+        for r in ea.into_iter(){
+            rec.insert(r);
+        }
+
         StripsState {
             stack_objetivos: so,
             solucion: Vec::with_capacity(325),
-            recursos: RecType::from_iter(ea),
+            recursos: rec,
         }
     }
 
