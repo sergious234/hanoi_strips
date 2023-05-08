@@ -9,6 +9,26 @@ pub enum Meta {
     Despejado(i8),
 }
 
+impl Meta {
+
+    #[inline]
+    pub fn get_first(&self) -> i8 {
+        match *self {
+            Meta::Sobre(x, _) => x,
+            Meta::Menor(x, _) => x,
+            Meta::Despejado(x) => x
+        }
+    }
+
+    pub fn reversed(&self) -> Meta {
+        match *self {
+            Meta::Sobre(x,y) => Meta::Sobre(y,x),
+            Meta::Menor(x,y) => Meta::Menor(y,x),
+            Meta::Despejado(_) => self.clone()
+        }    
+    }
+}
+
 type MetaS = Meta;
 
 #[derive(Clone, Ord, Copy, PartialOrd)]
@@ -104,7 +124,8 @@ impl Apilar {
                 .push_back(Stackeable::Objetivo(pre.deref().clone()).into())
         });
 
-        let conj = [precondiciones[2].clone(), precondiciones[3].clone()]; //Vec::with_capacity(2);
+
+        let conj = [precondiciones[2].get_first(), precondiciones[3].get_first()]; //Vec::with_capacity(2);
 
         /*
         for i in 2..4 {
@@ -128,7 +149,7 @@ impl Apilar {
 
         copia
             .stack_objetivos
-            .push_back(Stackeable::Conjuncion(conj).into());
+            .push_back(Stackeable::Conjuncion(conj));
 
         copia
     }

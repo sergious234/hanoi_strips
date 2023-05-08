@@ -94,7 +94,8 @@ impl Strips {
             if estado_actual.stack_objetivos.is_empty() {
                 let end = Instant::now();
 
-                // println!("Solucion: ");
+                println!("Solucion: {}", estado_actual.solucion.len());
+
                 /*
                 estado_actual
                     .solucion
@@ -179,7 +180,14 @@ impl Strips {
     }
 
     #[inline]
-    fn meta_compuesta(&mut self, estado_actual: &StripsState, conj: [Meta; 2]) -> EstadoMeta {
+    fn meta_compuesta(&mut self, estado_actual: &StripsState, conj: [i8; 2]) -> EstadoMeta {
+        
+        let conj: [Meta; 2] = [
+            Meta::Despejado(conj[0]),
+            Meta::Despejado(conj[1]),
+        ];
+
+
         if estado_actual.cumple_conjuncion(&conj) {
             return EstadoMeta::CumpleMeta;
         }
