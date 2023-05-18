@@ -1,7 +1,9 @@
 use std::{
-    collections::VecDeque,
-    hash::{Hash, Hasher},
+    collections::{VecDeque, hash_map::DefaultHasher},
+    hash::{Hash, Hasher, SipHasher},
 };
+
+use std::cell::Cell;
 
 use hashbrown::HashSet;
 
@@ -28,6 +30,7 @@ pub struct StripsState {
     pub stack_objetivos: VecDeque<Stackeable>,
     pub recursos: RecType,
     pub solucion: Vec<Apilar>,
+    pub cached_hash: Cell<Option<u64>>
     //pub pre_req_buffer: Option<[Rc<Stackeable>; 4]>,
     //pub buffer_len: usize,
 }
@@ -100,6 +103,7 @@ impl StripsState {
             stack_objetivos: so,
             solucion: Vec::with_capacity(solucion_size),
             recursos: rec,
+            cached_hash: None.into()
         }
     }
 
@@ -149,22 +153,27 @@ impl StripsState {
             solucion: o_solucion,
             recursos: o_rec,
             stack_objetivos: o_stack,
+            cached_hash: None.into()
         }
     }
 }
 
 impl Hash for StripsState {
     fn hash<H: Hasher>(&self, state: &mut H) {
-        for r in &self.recursos {
-            r.hash(state)
+        if let Some(ref cache) = self.cached_hash.get() {
+            state.write_u64(*cache);
+        } else {
+            let mut state_c = SipHasher::default();
+            for r in &self.recursos {
+                r.hash(&mut state_c);
+            }
+            
+            for objetivo in &self.stack_objetivos {
+                objetivo.hash(&mut state_c);
+            }
+            let final_hash: u64 = state_c.finish();
+            self.cached_hash.set(Some(final_hash));
+            state.write_u64(final_hash);
         }
-
-        let mut i: u64 = 33;
-        for objetivo in &self.stack_objetivos {
-            objetivo.hash(state);
-            i += 1;
-        }
-        i = i + 0x9e3779b9 + (i << 6) + (i >> 2);
-        i.hash(state);
     }
 }

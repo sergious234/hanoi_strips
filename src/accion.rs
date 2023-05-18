@@ -1,6 +1,5 @@
 use crate::{stackeable::Stackeable, stripsstate::StripsState};
 use std::hash::{Hash, Hasher};
-use std::ops::Deref;
 
 #[derive(Clone, Hash, PartialEq, Eq, Copy, PartialOrd, Ord)]
 pub enum Meta {
@@ -123,60 +122,49 @@ impl Apilar {
     pub fn add_prerequisitos(&self, estado_actual: &StripsState) -> StripsState {
         let mut copia: StripsState = estado_actual.copy();
 
-        let precondiciones: [MetaS; 4] = [
-            Meta::Menor(self.x, self.z),
-            Meta::Sobre(self.x, self.y),
-            Meta::Despejado(self.x),
-            Meta::Despejado(self.z),
-        ];
-
-        //assert_eq!(self.precondiciones.len(), 4);
-        precondiciones.iter().take(2).for_each(|pre| {
-            copia
-                .stack_objetivos
-                .push_back(Stackeable::Objetivo(*pre.deref()))
-        });
-
-        let conj = [precondiciones[2].get_first(), precondiciones[3].get_first()]; //Vec::with_capacity(2);
-
+        copia.stack_objetivos.push_back(Stackeable::Objetivo(Meta::Menor(self.x, self.z)));
+        copia.stack_objetivos.push_back(Stackeable::Objetivo(Meta::Sobre(self.x, self.y)));
         copia
             .stack_objetivos
-            .push_back(Stackeable::Conjuncion(conj));
+            .push_back(Stackeable::Conjuncion([self.x, self.z]));
 
         copia
     }
 
     pub fn genera_posibilidades(&self, meta: Meta, estado_actual: &StripsState) -> Posibilidades {
-        //let mut posibilidades: Vec<Apilar> = Vec::new();
-        let mut posibilidades = Posibilidades::new();
         let last_mov = if !estado_actual.solucion.is_empty() {
             estado_actual.solucion.last().unwrap().x
         } else {
             0
         };
 
+        let mut posibilidades = Posibilidades::new();
         match meta {
             Meta::Sobre(x, y) => {
-                for meta in estado_actual.recursos.iter() {
-                    if let Meta::Sobre(x2, y2) = *meta {
-                        if x == x2 && x != y2 && (x <= y || y < 0) && x != last_mov {
-                            posibilidades.push(Apilar::new(x, y2, y))
+                if x != last_mov {
+                    for meta in estado_actual.recursos.iter() {
+                        if let Meta::Sobre(x2, y2) = *meta {
+                            if x == x2 && x != y2 && (x <= y || y < 0) {
+                                posibilidades.push(Apilar::new(x, y2, y))
+                            }
                         }
                     }
                 }
             }
 
             Meta::Despejado(x) => {
-                let mut coso_que_mover = 0;
-
-                for recurso in &estado_actual.recursos {
-                    if let Meta::Sobre(x2, y2) = *recurso {
-                        if x == y2 {
-                            coso_que_mover = x2;
-                            break;
+                let coso_que_mover = {
+                    let mut res: i8 = 0;
+                    for recurso in estado_actual.recursos.iter(){
+                        if let Meta::Sobre(x2, y2) = *recurso {
+                            if x == y2 {
+                                res = x2;
+                                break
+                            }
                         }
                     }
-                }
+                    res
+                };
 
                 if coso_que_mover != last_mov {
                     estado_actual.recursos.iter().for_each(|item| {

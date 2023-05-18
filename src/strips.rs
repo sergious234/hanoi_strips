@@ -58,7 +58,7 @@ impl Strips {
             if estado_actual.stack_objetivos.is_empty() {
                 let end = Instant::now();
 
-                println!("Solucion: {}", estado_actual.solucion.len());
+                //println!("Solucion: {}", estado_actual.solucion.len());
 
                 /*
                 estado_actual
@@ -67,7 +67,7 @@ impl Strips {
                     .for_each(|e| println!("{:?}", e.to_string()));
                 */
 
-                println!("{}ms", end.duration_since(start).as_millis());
+                println!("{}ms", end.duration_since(start).as_micros());
                 return Some(end.duration_since(start).as_millis());
             }
 
@@ -151,12 +151,6 @@ impl Strips {
         if Strips::hay_bucle_conj(estado_actual, conj) {
             return EstadoMeta::Bucle
         }
-        // if conj
-        //     .into_iter()
-        //     .any(|m| Strips::hay_bucle(estado_actual, m))
-        // {
-        //     return EstadoMeta::Bucle;
-        // }
 
         /*
          * Optimizacion para Hanoi:
