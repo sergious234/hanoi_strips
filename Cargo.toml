@@ -10,14 +10,15 @@ overflow-checks = false
 overflow-checks = false
 opt-level = 3
 strip = false 
-lto = true
+lto = "fat"
+codegen-units = 16
 panic = "abort"
 
 [dependencies]
-hashbrown = "0.13.2"
+hashbrown = "0.14"
 
 [dev-dependencies]
-criterion = "0.3"
+criterion = "0.5.1"
 
 [[bench]]
 name = "my_benchmark"
